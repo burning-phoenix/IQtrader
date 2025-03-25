@@ -1,65 +1,109 @@
-Inspiration
+# IQTrader
 
-I have always been fascinated by physics and game theory, and I'm captivated by the idea that our seemingly chaotic world can be accurately predicted. Mathematics provides the framework to forecast the behavior of the physical world; the more information we have about a system, the more accurately we can predict its outcomes. If we can predict something as complex as our natural environment, then it should be relatively straightforward to determine the outcome of a virtual system, where most of the factors are visible. Motivated by this belief, I developed a trading model to test how effectively artificial intelligence—a new framework that leverages vast amounts of data—can predict the outcome of such a virtual system.
+## Inspiration
 
-What it does
+I have always been fascinated by physics and game theory, and I'm captivated by the idea that our seemingly chaotic world can be accurately predicted. Mathematics provides the framework to forecast the behavior of the physical world; the more information we have about a system, the more accurately we can predict its outcomes. If we can predict something as complex as our natural environment, then it should be relatively straightforward to determine the outcome of a virtual system where most of the factors are visible. Motivated by this belief, I developed a trading model to test how effectively artificial intelligence—leveraging vast amounts of data—can predict the outcome of such a virtual system.
 
-The model predicts the price change of any stock regardless of the company. It uses only the hourly OHLCV (open, high, low, close, volume) data from the past 5 days, as all the features are derived from these, to forecast the price change expected over the next 8 hours. The accuracy of these predictions is evaluated using a set of performance metrics, which provide insight into both the statistical properties of the predictions and their practical effectiveness.
+## What It Does
 
-Trend Accuracy, How well the model matches general price movements: 55% Match (Correlation)
-Direction Accuracy, How often the model correctly predicts whether prices will go up or down: 72% Correct
-Stability of Predictions, How consistent the model’s predictions are compared to the actual data’s natural ups and downs: Lower than Real Volatility (0.24 vs. 0.40)
-Prediction Bias, Whether the model has a tendency to overpredict or underpredict: Slightly Overpredicts Upward Movements
-Prediction Error, How far off the predictions are on average: Moderately Low Error (0.30)
-How we built it
+The model predicts the price change of any stock regardless of the company. It uses only the hourly OHLCV (Open, High, Low, Close, Volume) data from the past 5 days, with all features derived from these data points, to forecast the expected price change over the next 8 hours. The performance of these predictions is evaluated using several metrics that offer insight into both the statistical properties and practical effectiveness of the model:
 
-FEATURE ENGINEERING
+- **Trend Accuracy:**  
+  *55% Match (Correlation)* – How well the model matches general price movements.
+- **Direction Accuracy:**  
+  *72% Correct* – How often the model correctly predicts whether prices will go up or down.
+- **Stability of Predictions:**  
+  *Lower than Real Volatility (0.24 vs. 0.40)* – How consistent the model’s predictions are compared to the natural fluctuations in the data.
+- **Prediction Bias:**  
+  *Slightly Overpredicts Upward Movements* – Indicates whether the model has a tendency to over- or underpredict.
+- **Prediction Error:**  
+  *Moderately Low Error (0.30)* – How far off the predictions are on average.
 
-Creating a diverse set of indicators is important to describe the data, these include, momentum-based features and features that describe trend and volatility from the raw OHLCV prices. Examples include – ATR, ATR14, long-term rolling standard deviations, MACD and Stochastic Oscillator etc. Composite features were also found to have good predictive capabilities, particularly multiplying different features together.
+## How We Built It
 
-DATA EXPLORATION
+### Feature Engineering
 
-Data exploration is a critical first step in any machine learning project. By understanding the statistical characteristics of a dataset—such as skewness and the presence of long tails—we can identify potential issues early on. Highly skewed data or data with long tails can bias predictions, potentially leading to overfitting and a loss of accuracy. Moreover, if the data is negatively skewed and not properly standardized, even the most advanced ML architectures may perform poorly.
+- **Diverse Indicators:**  
+  Created a wide range of indicators, including momentum-based features and metrics describing trend and volatility from raw OHLCV data.  
+  *Examples:* ATR, ATR14, long-term rolling standard deviations, MACD, and Stochastic Oscillator.
+- **Composite Features:**  
+  Developed composite indicators by multiplying different features together, which proved to have strong predictive capabilities.
 
-FEATURE SELECTION
+### Data Exploration
 
-Keeping the indicators to a bare minimum is essential. I implemented six techniques to select the most important features. I picked scores with the highest mutual information alongside a strong permutation importance and tree-based importance.
+- **Statistical Analysis:**  
+  Explored the data to understand its statistical characteristics, such as skewness and long tails, which are crucial for identifying potential biases or overfitting issues.
+- **Normalization:**  
+  Recognized the need to address skewness and implemented appropriate data standardization techniques.
 
-Pearson Correlation: Measures how strongly each feature is related to the target outcome linearly, but it fails to capture non-linear relationships.
-Mutual Information: Quantifies how much knowing each feature reduces uncertainty in output
-Permutation Importance: Evaluates feature importance by randomly shuffling feature values and measuring the drop in prediction performance using a Random Forest model.
-Tree-based Importance: Uses the trained Random Forest model to rank features based on their contribution to decision-making.
-SHAP Analysis and Partial Dependence & ICE Plots
-DATA SCALING
+### Feature Selection
 
-Data analysis revealed significant skewness in the data, so a Quantile Transformer was applied to normalize the distribution shape, followed by a Standard Scaler to ensure the data has a mean of 0 and a standard deviation of 1.
+Implemented six techniques to select the most important features:
 
-MODEL ARCHITECTURE -
+- **Pearson Correlation:**  
+  Measures linear relationships between features and the target outcome (though it misses non-linear dependencies).
+- **Mutual Information:**  
+  Quantifies how much knowing a feature reduces uncertainty about the output.
+- **Permutation Importance:**  
+  Assesses feature importance by shuffling feature values and observing the impact on prediction performance using a Random Forest model.
+- **Tree-Based Importance:**  
+  Ranks features based on their contribution in a trained Random Forest model.
+- **SHAP Analysis & Partial Dependence/ICE Plots:**  
+  Used for understanding feature influence and interactions.
 
-Sliding-Window Interaction Block: Captures short-term temporal dependencies using multiple convolutional filters. Integrates a redundant convolutional path to enhance feature robustness and learning flexibility.
-Convolutional Neural Networks (CNNs): Extracts hierarchical temporal patterns through sequential convolutional layers. Employs residual connections to maintain efficient gradient flow, improving training stability and model performance.
-Bidirectional Long Short-Term Memory (BiLSTM): Efficiently models long-term temporal relationships and dependencies in both forward and backward directions. Batch normalization and dropout are strategically applied to enhance generalization and reduce overfitting.
-Lightweight Multi-Headed Attention Transformer: Dynamically prioritizes significant temporal segments within the data. Employs multiple attention heads to effectively capture diverse temporal relationships. Integrates feed-forward neural networks (FFN) to further enhance temporal feature representations.
-Challenges we ran into
+### Data Scaling
 
-The loss function I used initially was Mean Squared Error, which is insensitive to outliers and as a results does poorly at capturing variance, so I switched to Mean Absolute Error, which is sensitive to outliers. Both of them were bad at capturing the true variance in the data, MAE overshot and MSE undershot. I ended up using Huber Loss which combines the characteristics of both and lies somewhere in the middle of both.
+- **Quantile Transformer:**  
+  Applied to normalize the data distribution.
+- **Standard Scaler:**  
+  Ensured the data had a mean of 0 and a standard deviation of 1.
 
-After the sign accuracy increased to 58%, I decided to implement a sliding window interaction block that captures interactions between different patterns and residual layers followed by this to identify short-term temporal patterns. But adding this was very complex and I struggled for hours to get the code to work as I intended.
+### Model Architecture
 
-Along with these challenges, the project consisted of a lot of minor challenges and alignment issues.
+- **Sliding-Window Interaction Block:**  
+  Captures short-term temporal dependencies using multiple convolutional filters, including a redundant convolutional path to enhance feature robustness.
+- **Convolutional Neural Networks (CNNs):**  
+  Extracts hierarchical temporal patterns via sequential convolutional layers and residual connections for improved training stability.
+- **Bidirectional Long Short-Term Memory (BiLSTM):**  
+  Models long-term temporal relationships in both forward and backward directions, using batch normalization and dropout to reduce overfitting.
+- **Lightweight Multi-Headed Attention Transformer:**  
+  Dynamically prioritizes significant temporal segments using multiple attention heads, integrated with feed-forward neural networks for enhanced feature representation.
 
-Accomplishments that we're proud of
+## Challenges We Ran Into
 
-A trading model can easily overfit when it's too complex or underfit if it's not capable of capturing the relevant patterns. Despite training on just one year of data, which is admittedly less than ideal, I managed to develop a relatively complex model that delivered excellent results without succumbing to overfitting or under-fitting. After hours of refining the architecture, achieving the right balance was incredibly rewarding.
+- **Loss Function Selection:**  
+  Initially used Mean Squared Error (MSE) which underperformed at capturing variance, then tried Mean Absolute Error (MAE) which overshot the variance. Ultimately, Huber Loss was chosen to balance both extremes.
+- **Enhancing Sign Accuracy:**  
+  After reaching 58% sign accuracy, a sliding window interaction block was implemented to better capture short-term temporal patterns. This addition introduced complexity and required extensive debugging.
+- **Minor Alignment Issues:**  
+  Numerous minor challenges arose throughout the project, necessitating careful adjustments and alignment efforts.
 
-This project is my most elaborate hackathon effort yet, and I'm proud of its performance. While a sign accuracy of 60% might make a trading model usable, reaching 72% not only enhances usability but makes it truly desirable. Additionally, maintaining a 5:3 ratio between true variance and predicted variance, along with such high sign accuracy, is extremely impressive and highlights the model's robustness and precision.
+## Accomplishments We’re Proud Of
 
-What we learned
+Despite training on just one year of data, I managed to develop a relatively complex model that delivered excellent results without overfitting or underfitting. Achieving a sign accuracy of 72%—well above the 60% usability threshold—while maintaining a robust variance ratio (5:3 between true and predicted variance) highlights the model's precision and robustness. This project stands as my most elaborate hackathon effort to date, and I’m incredibly proud of its performance.
 
-This project taught me a great deal about data standardization techniques and various ML model architectures capable of capturing complex patterns. I experimented with different loss functions and regularization methods to balance model complexity with performance, ensuring that my model could generalize well from a limited dataset.
+## What We Learned
 
-I also learned how crucial it is to harmonize the learning rate and schedule for efficient convergence. In addition to tuning these hyperparameters, I explored advanced feature selection and evaluation strategies, which helped me manage overfitting and underfitting effectively. Overall, this experience deepened my understanding of building robust models for real-world applications.
+- **Data Standardization Techniques:**  
+  Gained deeper insights into normalizing and standardizing data for improved model performance.
+- **ML Model Architectures:**  
+  Explored various architectures capable of capturing complex patterns, including advanced feature selection and evaluation strategies.
+- **Loss Functions & Regularization:**  
+  Experimented with different loss functions and regularization methods to effectively balance model complexity with generalization.
+- **Hyperparameter Tuning:**  
+  Learned the critical importance of harmonizing the learning rate and schedule for efficient model convergence.
 
-What's next for IQtrader
+## What’s Next for IQTrader
 
-I want to incorporate Fourier Transform to ensure my model captures periodical and frequency-based data. I also want to explore the impact of additional methods like the Hurst Exponent and long-term autocorrelation on these predictions. Since this model is trained only on a year’s worth of data, I plan on training models with a longer history and plan on measures to avoid catastrophic forgetting, even though dynamic freezing and curriculum learning are already powerful mechanisms to avoid that. Mapping data from social media and yahoo finance to discrete emotional scores and convert them into aggregated score ranging from +1 to -1 using a GoEmotions classifier and including that as an indicator of public sentiment.
+- **Incorporating Fourier Transform:**  
+  To capture periodic and frequency-based data.
+- **Exploring Long-Term Autocorrelation:**  
+  Investigate additional methods such as the Hurst Exponent to enhance predictions.
+- **Expanding the Dataset:**  
+  Train models on longer historical data to improve prediction accuracy and avoid catastrophic forgetting, using techniques like dynamic freezing and curriculum learning.
+- **Sentiment Analysis Integration:**  
+  Map data from social media and Yahoo Finance to discrete emotional scores using a GoEmotions classifier, then aggregate these into a public sentiment indicator ranging from +1 to -1.
+
+---
+
+Contributions and feedback are welcome!
